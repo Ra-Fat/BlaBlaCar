@@ -17,6 +17,7 @@ class RidePrefsScreen extends StatelessWidget {
 
   void onRidePrefSelected(RidePref ridePref) {
     // TODO
+    
   }
 
   @override
@@ -70,7 +71,7 @@ class RidePrefsScreen extends StatelessWidget {
               ),
             ],
           ),
-        ),
+        ),   
       ],
     );
   }
