@@ -1,9 +1,9 @@
 import '../../../models/ride_pref/ride_pref.dart';
-import '../../../services/ride_prefs_service.dart';
 import 'package:flutter/material.dart';
 import '../../theme/theme.dart';
 import 'widgets/ride_prefs_form.dart';
 import 'widgets/ride_prefs_tile.dart';
+import '../../../services/ride_prefs_service.dart';
 
 const String blablaHomeImagePath = 'assets/images/blabla_home.png';
 
@@ -51,20 +51,19 @@ class RidePrefsScreen extends StatelessWidget {
             children: [
 
               // 2 - THE FORM
-              RidePrefForm(initRidePref: RidePrefsService.selectedRidePref),
+              RidePrefForm(initRidePref: RidePrefService.currentRidePref),
               SizedBox(height: BlaSpacings.m),
-
               // 3 - THE HISTORY 
               SizedBox(
                 height: 200, // Set a fixed height
                 child: ListView.builder(
                   shrinkWrap: true, // Fix ListView height issue
                   physics: AlwaysScrollableScrollPhysics(),
-                  itemCount: RidePrefsService.ridePrefsHistory.length,
+                  itemCount: RidePrefService.ridePrefsHistory.length,
                   itemBuilder: (ctx, index) => RidePrefsTile(
-                    ridePref: RidePrefsService.ridePrefsHistory[index],
+                    ridePref: RidePrefService.ridePrefsHistory[index],
                     onPressed: () => onRidePrefSelected(
-                      RidePrefsService.ridePrefsHistory[index],
+                      RidePrefService.ridePrefsHistory[index],
                     ),
                   ),
                 ),
