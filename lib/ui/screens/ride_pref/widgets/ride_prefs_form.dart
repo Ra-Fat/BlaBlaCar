@@ -156,6 +156,15 @@ class _RidePrefFormState extends State<RidePrefForm> {
     }
 
     // Will implement the check specific data and number of user later on
+
+    final ridePref = RidePref(
+      departure: departure!,
+      arrival: arrival!,
+      departureDate: departureDate,
+      requestedSeats: requestedSeats,
+    );
+
+    Navigator.pop(context, ridePref);
   }
 
   // ----------------------------------
