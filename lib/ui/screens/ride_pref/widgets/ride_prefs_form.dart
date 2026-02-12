@@ -133,6 +133,31 @@ class _RidePrefFormState extends State<RidePrefForm> {
     }
   }
 
+
+  void _onSearchPressed() async{
+    // Check that departure and arrival are selected
+    if (departure == null || arrival == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select both departure and arrival locations'),
+        ),
+      );
+      return;
+    }
+
+    // Check if departure and arrival are the same
+    if (departure == arrival) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Departure and arrival cannot be the same'),
+        ),
+      );
+      return;
+    }
+
+    // Will implement the check specific data and number of user later on
+  }
+
   // ----------------------------------
   // Compute the widgets rendering
   // ----------------------------------
@@ -207,7 +232,7 @@ class _RidePrefFormState extends State<RidePrefForm> {
 
           // Search Button
           // not implemented yet
-          BlaButton(text: 'Search', isPrimary: true, onTab: () => {}),
+          BlaButton(text: 'Search', isPrimary: true, onTab: _onSearchPressed),
         ],
       ),
     );
