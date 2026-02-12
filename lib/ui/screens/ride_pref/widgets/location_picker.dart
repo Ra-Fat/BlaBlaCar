@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../models/ride/locations.dart';
 import '../../../theme/theme.dart';
+import './location_tile.dart';
 
 /// Screen that allows user to search and select a location
 class LocationPicker extends StatefulWidget {
@@ -75,33 +76,15 @@ class _LocationPickerState extends State<LocationPicker> {
           ),
         ),
       ),
-      
+
       // List of filtered locations
       body: ListView.builder(
         itemCount: filteredLocations.length,
         itemBuilder: (context, index) {
           final location = filteredLocations[index];
-          return Container(
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(color: BlaColors.greyLight, width: 1),
-              ),
-            ),
-            child: ListTile(
-              title: Text(location.name),
-              subtitle: Text(
-                location.country.name,
-                style: BlaTextStyles.label.copyWith(color: BlaColors.textLight),
-              ),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                color: BlaColors.iconLight,
-                size: 16,
-              ),
-              onTap: () {
-                Navigator.pop(context, location);
-              },
-            ),
+          return LocationTile(
+            location: location,
+            onTap: () => Navigator.pop(context, location),
           );
         },
       ),
