@@ -7,7 +7,7 @@ import '../../../../services/location_service.dart';
 import '../../../theme/theme.dart';
 import '../../../../utils/date_time_utils.dart';
 import '../../../widgets/display/bla_divider.dart';
-import 'location_picker.dart';
+import '../../../widgets/inputs/location_picker.dart';
 import 'form_picker.dart';
 
 ///
@@ -43,10 +43,19 @@ class _RidePrefFormState extends State<RidePrefForm> {
   @override
   void initState() {
     super.initState();
-    departure = widget.initRidePref?.departure;
-    arrival = widget.initRidePref?.arrival;
-    departureDate = widget.initRidePref?.departureDate ?? DateTime.now();
-    requestedSeats = widget.initRidePref?.requestedSeats ?? 1;
+
+    if (widget.initRidePref != null) {
+      departure = widget.initRidePref!.departure;
+      arrival = widget.initRidePref!.arrival;
+      departureDate = widget.initRidePref!.departureDate;
+      requestedSeats = widget.initRidePref!.requestedSeats;
+    } else {
+      // If no given preferences, we select default ones :
+      departure = null; // User shall select the departure
+      departureDate = DateTime.now(); // Now  by default
+      arrival = null; // User shall select the arrival
+      requestedSeats = 1; // 1 seat book by default
+    }
   }
 
   // ----------------------------------
@@ -55,12 +64,11 @@ class _RidePrefFormState extends State<RidePrefForm> {
 
   // Open a screen to pick the departure location
   void _onDeparturePressed() async {
-    final Location? selectedLocation = await Navigator.push(
+    final Location? selectedLocation = await Navigator.push<Location>(
       context,
       MaterialPageRoute(
         builder: (_) => LocationPicker(
-          locations: LocationsService.availableLocations,
-          selected: departure,
+          location: departure,
         ),
       ),
     );
@@ -73,16 +81,14 @@ class _RidePrefFormState extends State<RidePrefForm> {
 
   // Open a date picker to select the departure date
   void _onArrivalPressed() async {
-    final Location? selectedLocation = await Navigator.push(
+    final Location? selectedLocation = await Navigator.push<Location>(
       context,
       MaterialPageRoute(
         builder: (_) => LocationPicker(
-          locations: LocationsService.availableLocations,
-          selected: arrival,
+          location: arrival,
         ),
       ),
     );
-
     if (selectedLocation != null) {
       setState(() {
         arrival = selectedLocation;
@@ -90,34 +96,15 @@ class _RidePrefFormState extends State<RidePrefForm> {
     }
   }
 
-  // Open a pop up date picker
   // just a mock test
   void _onDatePressed() async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: departureDate,
-      firstDate: DateTime(2026),
-      lastDate: DateTime(2027),
-    );
-
-    if (pickedDate != null) {
-      setState(() {
-        departureDate = pickedDate;
-      });
-    }
+    
   }
 
   void _onSeatsPressed() {
     // TODO: Show seats picker
   }
 
-  // /// Check if a given date is today
-  // bool _isToday(DateTime date) {
-  //   final now = DateTime.now();
-  //   return date.year == now.year &&
-  //       date.month == now.month &&
-  //       date.day == now.day;
-  // }
 
   /// Swap the departure and arrival locations
   void _onSwapLocation() {
@@ -126,15 +113,12 @@ class _RidePrefFormState extends State<RidePrefForm> {
         final temp = departure;
         departure = arrival;
         arrival = temp;
-
-        // move swap icon to other picker
-        swapOnDeparture = !swapOnDeparture;
       });
     }
   }
 
 
-  void _onSearchPressed() async{
+  void _onSubmit() async{
     // Check that departure and arrival are selected
     if (departure == null || arrival == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -172,6 +156,18 @@ class _RidePrefFormState extends State<RidePrefForm> {
   // ----------------------------------
 
   String get date => DateTimeUtils.formatDateTime(departureDate);
+  
+  String get departureLabel =>
+      departure != null ? departure!.name : "Leaving from";
+  String get arrivalLabel => arrival != null ? arrival!.name : "Going to";
+
+  bool get showDeparturePLaceHolder => departure == null;
+  bool get showArrivalPLaceHolder => arrival == null;
+
+  String get dateLabel => DateTimeUtils.formatDateTime(departureDate);
+  String get numberLabel => requestedSeats.toString();
+
+  bool get switchVisible => arrival != null && departure != null;
 
   // ----------------------------------
   // Build the widgets
@@ -192,56 +188,52 @@ class _RidePrefFormState extends State<RidePrefForm> {
         children: [
           
           // Departure Location
-          formPicker(
-            icon: Icons.circle_outlined,
-            label: 'Leaving from',
-            value: departure?.name,
-            onTap: _onDeparturePressed,
-            showSwapIcon:
-                swapOnDeparture && (departure != null || arrival != null),
-            onSwap: _onSwapLocation,
+          FormPicker(
+            isPlaceHolder: showDeparturePLaceHolder,
+            title: departureLabel,
+            leftIcon: Icons.location_on,
+            onTab: _onDeparturePressed,
+            rightIcon: switchVisible ? Icons.swap_vert : null,
+            onRightIconTab: switchVisible
+                ? _onSwapLocation
+                : null,
           ),
 
           BlaDivider(),
 
           // Arrival Location
-          formPicker(
-            icon: Icons.circle_outlined,
-            label: 'Going to',
-            value: arrival?.name,
-            onTap: _onArrivalPressed,
-            showSwapIcon:
-                !swapOnDeparture && (departure != null || arrival != null),
-            onSwap: _onSwapLocation,
+          FormPicker(
+            isPlaceHolder: showArrivalPLaceHolder,
+            title: arrivalLabel,
+            leftIcon: Icons.location_on,
+            onTab: _onArrivalPressed,
           ),
 
           BlaDivider(),
 
           // Date Picker
           // just a mock test
-          formPicker(
-            icon: Icons.calendar_month,
-            label: date,
-            value: null,
-            onTap: _onDatePressed,
+          FormPicker(
+            title: dateLabel,
+            leftIcon: Icons.calendar_month,
+            onTab: _onDatePressed,
           ),
 
           BlaDivider(),
 
           // Seat Picker
           // not implemented for now
-          formPicker(
-            icon: Icons.person_outline,
-            label: requestedSeats.toString(),
-            value: null,
-            onTap: _onSeatsPressed,
+          FormPicker(
+            title: numberLabel,
+            leftIcon: Icons.person_2_outlined,
+            onTab: () => {},
           ),
 
           const SizedBox(height: BlaSpacings.s),
 
           // Search Button
           // not implemented yet
-          BlaButton(text: 'Search', isPrimary: true, onTab: _onSearchPressed),
+          BlaButton(text: 'Search', isPrimary: true, onTab: _onSubmit),
         ],
       ),
     );
