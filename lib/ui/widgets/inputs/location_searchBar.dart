@@ -60,7 +60,7 @@ class _LocationSearchBarState extends State<LocationSearchBar> {
             ),
           ),
 
-          // TEXT FILED
+          // TEXT FILED INPUT
           Expanded(
             child: TextField(
               controller: _searchController,
